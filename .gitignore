@@ -1,0 +1,8 @@
+node_modules
+calculations.json
+
+# That's where I temporarily store the files for the challenge
+challenge/*
+
+# Would normally ignore the .env file as well
+# .env
