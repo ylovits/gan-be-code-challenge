@@ -1,8 +1,6 @@
 node_modules
 calculations.json
-
-# That's where I temporarily store the files for the challenge
-challenge/*
+all-cities.json
 
 # Would normally ignore the .env file as well
 # .env
