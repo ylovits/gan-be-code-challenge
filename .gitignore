@@ -1,6 +1,7 @@
 node_modules
 calculations.json
 all-cities.json
+addresses.json
 
 # Would normally ignore the .env file as well
 # .env
