@@ -1,0 +1,66 @@
+services:
+
+  database:
+    image: postgres:17-alpine
+    env_file: .env
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    volumes:
+      - database-volume:/var/lib/postgresql/data  # In case you want to run it multiple times
+    command: "-p ${POSTGRES_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -p ${POSTGRES_PORT} -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      start_period: 0s
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    network_mode: host
+
+  server:
+    image: server:1.0.0
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - ./server:/server
+    depends_on:
+      database:
+        condition: service_healthy
+    network_mode: host
+
+  wait-for-server:
+    image: alpine
+    depends_on:
+      - server
+    entrypoint: [ "sh", "-c", "while ! nc -z 127.0.0.1 8080; do sleep 1; done" ]
+    network_mode: host
+
+  client:
+    image: client:1.0.0
+    build: ./client
+    depends_on:
+      wait-for-server:
+        condition: service_completed_successfully
+    volumes:
+      - ./client:/client
+      - client-volume-node-modules:/client/node_modules # In case you want to run it multiple times
+    ports:
+      - ${CLIENT_PORT}:${CLIENT_PORT}
+    command: [ "npm", "start" ]
+    network_mode: host
+
+  stop-containers:
+    image: alpine
+    depends_on:
+      client:
+        condition: service_completed_successfully
+    entrypoint: [ "sh", "-c", "exit 1" ]
+
+volumes:
+  client-volume-node-modules:
+    name: "client-volume-node-modules"
+  database-volume:
+    name: "database-volume"
