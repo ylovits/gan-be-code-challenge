@@ -2,7 +2,6 @@ import { Application } from "oak";
 import router from "./routes/routes.ts";
 import handleErrors from "./middlewares/handleErrors.ts";
 import handleAuthentication from "./middlewares/handleAuthentication.ts";
-import initializeDb from "./init.ts";
 
 
 const SERVER_PROTOCOL = Deno.env.get("SERVER_PROTOCOL");
@@ -14,7 +13,6 @@ const app = new Application({ logErrors: !!VERBOSE });
 
 const apiURL = `${SERVER_PROTOCOL}://${HOST}:${SERVER_PORT}`;
 
-await initializeDb();
 
 // Enable to log all requests
 if (VERBOSE === 'true') {

@@ -7,9 +7,10 @@ services:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
       - database-volume:/var/lib/postgresql/data  # In case you want to run it multiple times
+      - ./seed/seed.sql :/docker-entrypoint-initdb.d/seed.sql 
     command: "-p ${POSTGRES_PORT}"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -p ${POSTGRES_PORT} -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "psql -U ${POSTGRES_USER} -d postgres -h localhost -c \"SELECT COUNT(*) FROM addresses;\" | grep -q 100000 || exit 1"]
       start_period: 0s
       interval: 5s
       timeout: 5s
@@ -64,3 +65,5 @@ volumes:
     name: "client-volume-node-modules"
   database-volume:
     name: "database-volume"
+  seed-volume:
+    name: "seed-volume"
